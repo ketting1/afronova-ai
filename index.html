@@ -1,124 +1,325 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AfroNova AI - Guidance Assistant</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #0b1b2b, #0f2a1d);
       color: white;
       text-align: center;
-      padding-top: 70px;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 750px;
+      margin: 0 auto;
+      padding-top: 20px;
     }
 
     h1 {
       color: #ffd700;
-      font-size: 40px;
+      font-size: clamp(28px, 8vw, 48px);
+      margin: 20px 0 10px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     p {
       color: #cfd8dc;
+      font-size: 16px;
+      margin: 0 0 30px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
     }
 
     input {
-      width: 70%;
+      width: 100%;
       padding: 15px;
       border-radius: 10px;
-      border: none;
-      margin-top: 20px;
+      border: 2px solid #ffd700;
+      background: rgba(255, 255, 255, 0.95);
+      color: #0b1b2b;
       font-size: 16px;
       outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      transform: scale(1.02);
+    }
+
+    input::placeholder {
+      color: #999;
     }
 
     button {
-      margin-top: 20px;
-      padding: 15px 30px;
+      padding: 15px 40px;
       border: none;
       border-radius: 10px;
       background: #ffd700;
-      color: black;
+      color: #0b1b2b;
       font-weight: bold;
+      font-size: 16px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      align-self: center;
+      min-width: 150px;
+    }
+
+    button:hover {
+      background: #ffed4e;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:focus {
+      outline: 3px solid rgba(255, 215, 0, 0.6);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
 
     #response {
-      margin-top: 40px;
+      margin-top: 30px;
       font-size: 18px;
       color: #ffffff;
-      padding: 20px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.6;
+      padding: 25px;
+      background: rgba(15, 42, 29, 0.6);
+      border-left: 4px solid #ffd700;
+      border-radius: 8px;
+      line-height: 1.8;
+      min-height: 60px;
+      animation: fadeIn 0.5s ease-in-out;
+      display: none;
     }
 
-    .box {
-      max-width: 750px;
-      margin: auto;
+    #response.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .loading {
+      display: none;
+      color: #ffd700;
+      font-style: italic;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      input, button {
+        font-size: 14px;
+        padding: 12px;
+      }
+
+      #response {
+        font-size: 16px;
+        padding: 15px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="box">
+  <main>
     <h1>AfroNova AI</h1>
     <p>Islamic Guidance & Inspiration Assistant</p>
 
-    <input id="question" placeholder="Ask something..." />
-    <br>
-    <button onclick="reply()">Ask</button>
+    <div class="input-container">
+      <input 
+        id="question" 
+        type="text"
+        placeholder="Ask something..." 
+        aria-label="Ask a question for Islamic guidance"
+      />
+      <button onclick="reply()" aria-label="Submit your question">Ask</button>
+    </div>
 
-    <div id="response"></div>
-  </div>
+    <div class="loading" id="loading">Thinking...</div>
+    <div id="response" role="region" aria-live="polite" aria-label="Response"></div>
+  </main>
 
   <script>
-    function reply() {
-      let q = document.getElementById("question").value.toLowerCase();
-      let res = document.getElementById("response");
+    // Response database organized by category
+    const responseDatabase = {
+      stress: {
+        keywords: ["stress", "worried", "worry", "anxiety", "anxious", "nervous"],
+        answers: [
+          "Remember: 'Verily, in the remembrance of Allah do hearts find rest.' (Qur'an 13:28)",
+          "Take a breath, trust Allah's plan. This hardship will pass.",
+          "Turn to prayer and patience — ease comes after difficulty.",
+          "Allah does not burden a soul beyond what it can bear. You are stronger than you know."
+        ]
+      },
+      success: {
+        keywords: ["success", "money", "future", "achieve", "goal", "career"],
+        answers: [
+          "Trust Allah, but tie your camel — take action and work hard.",
+          "Success comes with patience, discipline, and faith.",
+          "Your rizq (provision) is already written, keep striving.",
+          "Build your foundation on effort and intention. Results follow in due time."
+        ]
+      },
+      sadness: {
+        keywords: ["sad", "depressed", "depression", "unhappy", "miserable", "lonely"],
+        answers: [
+          "Do not lose hope in the mercy of Allah.",
+          "Even pain has purpose — Allah is with the patient.",
+          "Speak to Allah in your own words — He listens.",
+          "This darkness is temporary. Light returns to those who endure."
+        ]
+      },
+      relationships: {
+        keywords: ["love", "relationship", "family", "friend", "marriage", "trust"],
+        answers: [
+          "Kindness and honesty are the foundation of strong bonds.",
+          "Treat others as you wish to be treated — this is the path of wisdom.",
+          "Communication with sincerity heals many wounds.",
+          "Family is a blessing; cherish and maintain these ties."
+        ]
+      },
+      knowledge: {
+        keywords: ["learn", "study", "knowledge", "education", "understand", "wisdom"],
+        answers: [
+          "Seek knowledge from cradle to grave.",
+          "Understanding begins with curiosity and humility.",
+          "Every question answered opens ten new doors.",
+          "Knowledge without action is like a tree without fruit."
+        ]
+      },
+      perseverance: {
+        keywords: ["tired", "give up", "quit", "hard", "difficult", "struggle", "fail"],
+        answers: [
+          "Every master was once a beginner. Keep going.",
+          "Difficulty is temporary; your effort is eternal.",
+          "The strongest character is built through adversity.",
+          "Do not count the stumbles, only the forward steps."
+        ]
+      }
+    };
 
-      if (q.trim() === "") {
-        res.innerHTML = "Please ask something first.";
+    // Get DOM elements
+    const questionInput = document.getElementById("question");
+    const responseDiv = document.getElementById("response");
+    const loadingDiv = document.getElementById("loading");
+
+    // Add Enter key support
+    questionInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        reply();
+      }
+    });
+
+    function reply() {
+      const question = questionInput.value.trim().toLowerCase();
+      
+      // Validation
+      if (question === "") {
+        showResponse("Please ask something first.", true);
         return;
       }
 
-      let answers = [];
+      // Show loading state
+      showLoading(true);
 
-      // Islamic / inspirational responses
-      if (q.includes("stress") || q.includes("worried") || q.includes("anxiety")) {
-        answers = [
-          "Remember: 'Verily, in the remembrance of Allah do hearts find rest.' (Qur'an 13:28)",
-          "Take a breath, trust Allah's plan. This hardship will pass.",
-          "Turn to prayer and patience — ease comes after difficulty."
-        ];
-      }
-      else if (q.includes("success") || q.includes("money") || q.includes("future")) {
-        answers = [
-          "Trust Allah, but tie your camel — take action and work hard.",
-          "Success comes with patience, discipline, and faith.",
-          "Your rizq (provision) is already written, keep striving."
-        ];
-      }
-      else if (q.includes("sad") || q.includes("depressed")) {
-        answers = [
-          "Do not lose hope in the mercy of Allah.",
-          "Even pain has purpose — Allah is with the patient.",
-          "Speak to Allah in your own words — He listens."
-        ];
-      }
-      else {
-        answers = [
-          "Seek knowledge and act with good intention.",
-          "Stay consistent, even small steps matter.",
-          "Faith and effort together lead to success.",
-          "Make dua and trust the process."
-        ];
+      // Simulate slight delay for better UX
+      setTimeout(() => {
+        const answer = findAnswer(question);
+        showResponse(answer);
+        questionInput.value = ""; // Clear input
+        questionInput.focus();
+        showLoading(false);
+      }, 300);
+    }
+
+    function findAnswer(question) {
+      // Search through response database
+      for (const category in responseDatabase) {
+        const { keywords, answers } = responseDatabase[category];
+        
+        for (const keyword of keywords) {
+          if (question.includes(keyword)) {
+            return answers[Math.floor(Math.random() * answers.length)];
+          }
+        }
       }
 
-      let random = answers[Math.floor(Math.random() * answers.length)];
-      res.innerHTML = random;
+      // Default responses if no category matches
+      const defaultAnswers = [
+        "Seek knowledge and act with good intention.",
+        "Stay consistent, even small steps matter.",
+        "Faith and effort together lead to success.",
+        "Make dua and trust the process.",
+        "Allah's wisdom is infinite; seek understanding with an open heart."
+      ];
+
+      return defaultAnswers[Math.floor(Math.random() * defaultAnswers.length)];
+    }
+
+    function showResponse(message, isError = false) {
+      responseDiv.textContent = message;
+      responseDiv.classList.add("show");
+      if (isError) {
+        responseDiv.classList.add("error");
+      } else {
+        responseDiv.classList.remove("error");
+      }
+    }
+
+    function showLoading(show) {
+      if (show) {
+        loadingDiv.classList.add("show");
+        responseDiv.classList.remove("show");
+      } else {
+        loadingDiv.classList.remove("show");
+      }
     }
   </script>
 
