@@ -1,85 +1,126 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-  <title>AfroNova AI</title>
+  <title>AfroNova AI - Guidance Assistant</title>
 
   <style>
-
-    body{
-      background:linear-gradient(to bottom, black, darkblue);
-      color:white;
-      text-align:center;
-      font-family:Arial;
-      padding-top:100px;
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #0b1b2b, #0f2a1d);
+      color: white;
+      text-align: center;
+      padding-top: 70px;
     }
 
-    h1{
-      font-size:60px;
-      color:cyan;
+    h1 {
+      color: #ffd700;
+      font-size: 40px;
     }
 
-    p{
-      font-size:24px;
+    p {
+      color: #cfd8dc;
     }
 
-    input{
-      padding:15px;
-      width:300px;
-      border:none;
-      border-radius:10px;
+    input {
+      width: 70%;
+      padding: 15px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 20px;
+      font-size: 16px;
+      outline: none;
     }
 
-    button{
-      padding:15px 25px;
-      border:none;
-      border-radius:10px;
-      background:cyan;
-      font-size:18px;
-      cursor:pointer;
+    button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      background: #ffd700;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    #response{
-      margin-top:40px;
-      font-size:24px;
-      color:gold;
+    #response {
+      margin-top: 40px;
+      font-size: 18px;
+      color: #ffffff;
+      padding: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
     }
 
+    .box {
+      max-width: 750px;
+      margin: auto;
+    }
   </style>
-
 </head>
 
 <body>
 
-  <h1>AFRONOVA AI</h1>
+  <div class="box">
+    <h1>AfroNova AI</h1>
+    <p>Islamic Guidance & Inspiration Assistant</p>
 
-  <p>Ask the AI something</p>
+    <input id="question" placeholder="Ask something..." />
+    <br>
+    <button onclick="reply()">Ask</button>
 
-  <input type="text"
-  id="question"
-  placeholder="Type here">
-
-  <br><br>
-
-  <button onclick="reply()">Ask AI</button>
-
-  <div id="response"></div>
+    <div id="response"></div>
+  </div>
 
   <script>
+    function reply() {
+      let q = document.getElementById("question").value.toLowerCase();
+      let res = document.getElementById("response");
 
-    function reply(){
+      if (q.trim() === "") {
+        res.innerHTML = "Please ask something first.";
+        return;
+      }
 
-      let answer =
-      "The future belongs to creators.";
+      let answers = [];
 
-      document.getElementById("response").innerHTML =
-      answer;
+      // Islamic / inspirational responses
+      if (q.includes("stress") || q.includes("worried") || q.includes("anxiety")) {
+        answers = [
+          "Remember: 'Verily, in the remembrance of Allah do hearts find rest.' (Qur'an 13:28)",
+          "Take a breath, trust Allah's plan. This hardship will pass.",
+          "Turn to prayer and patience — ease comes after difficulty."
+        ];
+      }
+      else if (q.includes("success") || q.includes("money") || q.includes("future")) {
+        answers = [
+          "Trust Allah, but tie your camel — take action and work hard.",
+          "Success comes with patience, discipline, and faith.",
+          "Your rizq (provision) is already written, keep striving."
+        ];
+      }
+      else if (q.includes("sad") || q.includes("depressed")) {
+        answers = [
+          "Do not lose hope in the mercy of Allah.",
+          "Even pain has purpose — Allah is with the patient.",
+          "Speak to Allah in your own words — He listens."
+        ];
+      }
+      else {
+        answers = [
+          "Seek knowledge and act with good intention.",
+          "Stay consistent, even small steps matter.",
+          "Faith and effort together lead to success.",
+          "Make dua and trust the process."
+        ];
+      }
 
+      let random = answers[Math.floor(Math.random() * answers.length)];
+      res.innerHTML = random;
     }
-
   </script>
 
 </body>
-
 </html>
