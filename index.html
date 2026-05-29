@@ -124,6 +124,7 @@ Ask AfroNova AI
 </button>
 
 <p id="verse"></p>
+<p id="message"></p>
 
 <div class="footer">
 Powered by AfroNova AI 🌍
@@ -145,8 +146,25 @@ function showMessage(){
     document.getElementById("message").innerHTML =
     "AfroNova AI assistant coming soon...";
 }
+    
+const verses = [
+"Indeed, with hardship comes ease. — Qur'an 94:6",
+"And Allah is the best of planners. — Qur'an 8:30",
+"So remember Me; I will remember you. — Qur'an 2:152",
+"Do not despair of the mercy of Allah. — Qur'an 39:53",
+"And He found you lost and guided you. — Qur'an 93:7"
+];
+
+const randomVerse =
+verses[Math.floor(Math.random() * verses.length)];
+
+document.getElementById("verse").innerHTML =
+randomVerse;
+
+
 
 </script>
+
 
 </body>
 </html>
