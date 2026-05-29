@@ -136,17 +136,19 @@ Powered by AfroNova AI 🌍
 
 const today = new Date();
 
-document.getElementById("date").innerHTML =
-today.toDateString();
+// Set Gregorian date
+document.getElementById("date").innerHTML = today.toDateString();
 
-document.getElementById("hijri").innerHTML =
-"1447 AH";
+// Placeholder Hijri date (you can upgrade later)
+document.getElementById("hijri").innerHTML = "1447 AH";
 
-function showMessage(){
+// Button message
+function showMessage() {
     document.getElementById("message").innerHTML =
-    "AfroNova AI assistant coming soon...";
+    "AfroNova AI is evolving into a spiritual guidance assistant...";
 }
-    
+
+// 🌙 Islamic verses
 const verses = [
 "Indeed, with hardship comes ease. — Qur'an 94:6",
 "And Allah is the best of planners. — Qur'an 8:30",
@@ -155,13 +157,18 @@ const verses = [
 "And He found you lost and guided you. — Qur'an 93:7"
 ];
 
-const randomVerse =
-verses[Math.floor(Math.random() * verses.length)];
+// Show random verse
+function showVerse() {
+    const randomVerse =
+        verses[Math.floor(Math.random() * verses.length)];
 
-document.getElementById("verse").innerHTML =
-randomVerse;
+    document.getElementById("verse").innerHTML = randomVerse;
+}
 
-
+// Run when page loads
+window.onload = function () {
+    showVerse();
+};
 
 </script>
 
